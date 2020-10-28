@@ -1,0 +1,68 @@
+install.packages("ggplot2")
+install.packages("reshape2")
+install.packages("stringr")
+
+library(ggplot2)
+library(reshape2)
+library(stringr)
+
+# 데이터 불러오기
+setwd("C:/Users/user/Desktop")
+data.result <- read.csv("실적데이터.csv")
+
+# 년,월,일,시간 나누기
+X <- NULL
+X <- gsub("-", " ", data.result$방송일시)
+X <- strsplit(X, " ")
+X <- t(matrix(unlist(X), 4, 38309))
+
+X_frame <- data.frame(X)
+names(X_frame)[1] <- "year"
+names(X_frame)[2] <- "month"
+names(X_frame)[3] <- "day"
+names(X_frame)[4] <- "time"
+
+result <- cbind(X_frame, data.result)
+
+# 필요없는 데이터 열 삭제하기
+result$방송일시 <-NULL
+result$마더코드 <-NULL
+result$상품코드 <-NULL
+result$X <-NULL
+result$X.1 <-NULL
+result$X.2 <-NULL
+result$X.3 <-NULL
+
+#노출분 이름 바꾸기
+names(result)[5] <- "노출분"
+
+# 상품군이 무형인 데이터 삭제하기, result_final이 무형 삭제된 데이터
+result_subset <- subset(result, !(result$상품군=="무형"))
+result_final <- data.frame(year=result_subset$year, month=result_subset$month, day=result_subset$day, time=result_subset$time, 노출분=result_subset$노출분, 상품명=result_subset$상품명, 상품군=result_subset$상품군, 판매단가=result_subset$판매단가, 취급액=result_subset$취급액)
+
+# 판매단가 정수형 변환
+X <- NULL
+X <- gsub(",", "", result_final$판매단가)
+X
+X <- t(matrix(unlist(X), 1, 37372))
+result_final$판매단가 <- X
+result_final$판매단가 <- as.integer(result_final$판매단가)
+
+X_frame <- data.frame(X)
+result$판매단가 <- as.integer(result$판매단가)
+result$취급액 <- as.integer(result$취급액)
+
+# 취급액 정수형 변환
+Y <- NULL
+Y <- gsub(",", "", result_final$취급액)
+Y
+Y <- t(matrix(unlist(Y), 1, 37372))
+result_final$취급액 <- Y
+result_final$취급액 <- as.integer(result_final$취급액)
+
+# 판매량 계산
+order <- data.frame(판매량=round(result_final$취급액/result_final$판매단가))
+result_final <- cbind(result_final, order)
+
+# result_final dataframe csv파일로 저장하기
+write.csv(result_final, file="split_datetime.csv")

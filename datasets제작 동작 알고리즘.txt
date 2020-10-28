@@ -1,0 +1,30 @@
+x는 모든 데이터
+y는 매출액열 
+
+y가 만약에 500개라 치고, seq_length가 7이면
+for i in (0, 500-7):
+_x = x[i:i+7]
+_y = y[i+7]
+dataX에 _x추가
+dataY에 _y추가
+
+i=0
+_x =x[0:7]
+_y =y[7]
+dataX=[x[0:7]]
+dataY=[y[7]]
+
+i=1
+_x =x[1:8]
+_y =y[8]
+dataX=[x[0:7], x[1:8]]
+dataY=[y[7],y[8]]
+
+i=2
+_x =x[2:9]
+_y =y[9]
+dataX=[x[0:7], x[1:8], x[2:9]]
+dataY=[y[7],y[8],y[9]]
+
+
+
